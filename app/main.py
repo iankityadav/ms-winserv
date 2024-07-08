@@ -64,8 +64,7 @@ def list_services(server_id: int, db: Session = Depends(database.get_db), curren
     
     try:
         services_list = remote_manager.list_services()
-        services.save_services_to_db(db, server_id, services_list)
-        return services_list
+        return services.save_services_to_db(db, server_id, services_list)
     except Exception as e:
         logger.error(f"Failed to list services for server {db_server.ip}: {e}")
         raise HTTPException(status_code=500, detail="Failed to list services")

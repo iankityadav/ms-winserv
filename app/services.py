@@ -3,9 +3,11 @@ import json
 from cryptography.fernet import Fernet
 from .models import Server, Service
 from .database import SessionLocal
+from dotenv import dotenv_values
 
 # Encryption key for passwords
-key = Fernet.generate_key()
+env = dotenv_values(".env")
+key = env["ENCRYPTION_KEY"]
 cipher_suite = Fernet(key)
 
 class RemoteServiceManager:
@@ -46,11 +48,22 @@ def decrypt_password(encrypted_password):
     return cipher_suite.decrypt(encrypted_password.encode()).decode()
 
 def save_services_to_db(db, server_id, services):
+    existing_services = db.query(Service).filter(Service.server_id == server_id).all()
+    existing_services_dict = {service.name: service for service in existing_services}
+    services_list=[]
     for service in services:
-        db_service = Service(
-            name=service['Name'],
-            status=service['Status'],
-            server_id=server_id
-        )
-        db.add(db_service)
+        service_name = service['Name']
+        service_status = service['Status']
+        if service_name in existing_services_dict:
+            db_service = existing_services_dict[service_name]
+            db_service.status = service_status
+        else:
+            db_service = Service(
+                name=service_name,
+                status=service_status,
+                server_id=server_id
+            )
+            db.add(db_service)
+        services_list.append(db_service)
     db.commit()
+    return services_list
