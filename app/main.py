@@ -23,7 +23,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(username=user.username, hashed_password=hashed_password)
+    db_user = models.User(username=user.username, hashed_password=hashed_password, name=user.name, email=user.email)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -102,3 +102,7 @@ def stop_service(server_id: int, service_name: str, db: Session = Depends(databa
     except Exception as e:
         logger.error(f"Failed to stop service {service_name} on server {db_server.ip}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to stop service: {e}")
+
+@app.get("/users/me", response_model=schemas.User)
+def get_current_user(current_user: models.User = Depends(auth.get_current_user)):
+    return current_user

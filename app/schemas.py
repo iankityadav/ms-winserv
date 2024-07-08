@@ -1,12 +1,16 @@
 from pydantic import BaseModel
 
 class UserCreate(BaseModel):
+    name: str
+    email: str
     username: str
     password: str
 
 class User(BaseModel):
     id: int
     username: str
+    name: str
+    email: str
 
     class Config:
         from_attributes = True
