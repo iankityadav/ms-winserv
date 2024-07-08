@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from datetime import timedelta
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -9,9 +10,12 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    database.init_db()
 
-models.Base.metadata.create_all(bind=database.engine)
+app = FastAPI(lifespan=lifespan)
 
 @app.post("/signup", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
