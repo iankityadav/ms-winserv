@@ -19,6 +19,7 @@ class Server(Base):
     ip = Column(String, unique=True, index=True)
     username = Column(String)
     encrypted_password = Column(String)
+    description = Column(String)
     owner_id = Column(Integer, ForeignKey('users.id'))
     owner = relationship("User", back_populates="servers")
     created_at = Column(DateTime(timezone=True), server_default=func.now())

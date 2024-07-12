@@ -55,15 +55,19 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 @app.post("/servers/", response_model=schemas.Server)
 def create_server(server: schemas.ServerCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     encrypted_password = services.encrypt_password(server.password)
-    db_server = models.Server(ip=server.ip, username=server.username, encrypted_password=encrypted_password, owner_id=current_user.id)
+    db_server = models.Server(ip=server.ip, username=server.username, encrypted_password=encrypted_password, description=server.description, owner_id=current_user.id)
     db.add(db_server)
     db.commit()
     db.refresh(db_server)
     return db_server
 
+@app.get("/servers/", response_model=list[schemas.Server])
+def create_server(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return db.query(models.Server).all()
+
 @app.get("/servers/{server_id}/services", response_model=list[schemas.Service])
 def list_services(server_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    db_server = db.query(models.Server).filter(models.Server.id == server_id, models.Server.owner_id == current_user.id).first()
+    db_server = db.query(models.Server).filter(models.Server.id == server_id).first()
     if not db_server:
         raise HTTPException(status_code=404, detail="Server not found")
     

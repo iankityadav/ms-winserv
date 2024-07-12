@@ -19,11 +19,13 @@ class ServerCreate(BaseModel):
     ip: str
     username: str
     password: str
+    description: str
 
 class Server(BaseModel):
     id: int
     ip: str
     username: str
+    description: str
 
     class Config:
         from_attributes = True
