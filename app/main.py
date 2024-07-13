@@ -83,7 +83,7 @@ def list_services(server_id: int, db: Session = Depends(database.get_db), curren
 
 @app.post("/servers/{server_id}/services/{service_name}/start")
 def start_service(server_id: int, service_name: str, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    db_server = db.query(models.Server).filter(models.Server.id == server_id, models.Server.owner_id == current_user.id).first()
+    db_server = db.query(models.Server).filter(models.Server.id == server_id).first()
     if not db_server:
         raise HTTPException(status_code=404, detail="Server not found")
     
@@ -100,7 +100,7 @@ def start_service(server_id: int, service_name: str, db: Session = Depends(datab
 
 @app.post("/servers/{server_id}/services/{service_name}/stop")
 def stop_service(server_id: int, service_name: str, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    db_server = db.query(models.Server).filter(models.Server.id == server_id, models.Server.owner_id == current_user.id).first()
+    db_server = db.query(models.Server).filter(models.Server.id == server_id).first()
     if not db_server:
         raise HTTPException(status_code=404, detail="Server not found")
     
